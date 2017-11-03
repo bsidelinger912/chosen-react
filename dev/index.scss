@@ -1,0 +1,36 @@
+body {
+  background: #eee;
+  color: #444;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h2 {
+  border-bottom: 1px solid #ccc;
+  margin: 3em 0 1em 0;
+}
+
+h3 {
+  margin-top: 0;
+  font-weight: normal;
+}
+
+.heading {
+  margin-top: 0;
+}
+
+.wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 25px;
+}
+
+.side-by-side {
+  display: flex;
+  width: 100%;
+}
+
+.side-by-side > div {
+  width: 50%;
+}
