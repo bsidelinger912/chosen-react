@@ -6,7 +6,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export class Results extends React.Component {
+class Results extends React.Component {
   static propTypes = {
     options: PropTypes.arrayOf(PropTypes.shape({
       text: PropTypes.string.isRequired,

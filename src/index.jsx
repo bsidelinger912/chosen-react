@@ -6,6 +6,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import container from './Container';
+
 import DownArrow from './icons/DownArrow';
 import UpArrow from './icons/UpArrow';
 import Results from './Results';
@@ -14,7 +16,7 @@ import './chosen.scss';
 
 class Chosen extends React.Component {
   static propTypes = {
-    className: PropTypes.string,
+    className: PropTypes.string.isRequired,
     options: PropTypes.arrayOf(PropTypes.shape({
       text: PropTypes.string.isRequired,
       value: PropTypes.oneOfType([
@@ -22,10 +24,12 @@ class Chosen extends React.Component {
         PropTypes.number,
       ]),
     })).isRequired,
-  }
-
-  static defaultProps = {
-    className: '',
+    search: PropTypes.func.isRequired,
+    onSelect: PropTypes.func.isRequired,
+    selected: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string),
+    ]).isRequired,
   }
 
   constructor() {
@@ -33,29 +37,22 @@ class Chosen extends React.Component {
 
     this.state = { dropVisible: false };
 
-    this.onSelect = this.onSelect.bind(this);
     this.toggleOpenClosed = this.toggleOpenClosed.bind(this);
+    this.onSelect = this.onSelect.bind(this);
   }
 
-  onSelect(e) {
-    console.log('******');
-    console.log(e);
-    console.log(this.state);
+  onSelect(value) {
+    this.setState({ dropVisible: false });
+
+    this.props.onSelect(value);
   }
 
   toggleOpenClosed() {
     this.setState({ dropVisible: !this.state.dropVisible });
   }
 
-  search(e) {
-    const value = e.target.value;
-
-    console.log(this.state);
-    console.log(value);
-  }
-
   render() {
-    const { className, options } = this.props;
+    const { className, options, onSelect, search, selected } = this.props; // eslint-disable-line object-curly-newline
     const { dropVisible } = this.state;
 
     const normalSelectOptions = options.map(option => (
@@ -68,6 +65,8 @@ class Chosen extends React.Component {
       <UpArrow />
     );
 
+    const selectedEl = (typeof selected === 'string') ? selected : null; // TODO: implement multi
+
     return (
       <div className="chosen-react">
         <select style={{ display: 'none' }}>
@@ -75,14 +74,15 @@ class Chosen extends React.Component {
         </select>
         <div className={`chosen-react__container ${className}`}>
           <a className="chosen-react__current" onClick={this.toggleOpenClosed}>
-            Make me take current value
+            {selectedEl}
+
             <span className="chosen-react__arrow">
               {arrowComponent}
             </span>
           </a>
           <div className="chosen-react__drop" style={{ display: dropVisible ? 'block' : 'none' }}>
             <div className="chosen-react__search">
-              <input type="text" onKeyUp={this.search} />
+              <input type="text" onKeyUp={search} />
             </div>
 
             <Results {...{ options, dropVisible, itemSelected: this.onSelect }} />
@@ -93,4 +93,4 @@ class Chosen extends React.Component {
   }
 }
 
-export default Chosen;
+export default container(Chosen);
