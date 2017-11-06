@@ -17,27 +17,13 @@ class Results extends React.Component {
     })).isRequired,
     dropVisible: PropTypes.bool.isRequired,
     itemSelected: PropTypes.func.isRequired,
+    activeIndex: PropTypes.number.isRequired,
   }
 
   constructor() {
     super();
 
-    this.focusFirstLi = this.focusFirstLi.bind(this);
     this.selectLi = this.selectLi.bind(this);
-  }
-
-  componentDidMount() {
-    this.focusFirstLi();
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.dropVisible && !this.props.dropVisible) {
-      setTimeout(this.focusFirstLi, 0);
-    }
-  }
-
-  focusFirstLi() {
-    this.firstLi.focus();
   }
 
   selectLi(value) {
@@ -45,7 +31,7 @@ class Results extends React.Component {
   }
 
   render() {
-    const { options } = this.props;
+    const { options, activeIndex } = this.props;
 
     const liElements = options.map((option, index) => {
       const ref = (index === 0) ? (li) => { this.firstLi = li; } : undefined;
@@ -53,10 +39,14 @@ class Results extends React.Component {
       return (
         <li
           {...{
+            className: (index === activeIndex) ? 'chosen-react__results__active' : '',
             ref,
             tabIndex: 1,
             key: option.value,
+
+            // TODO: no lamda
             onClick: () => this.selectLi(option.value),
+            onMouseOver: () => this.props.setActiveIndex(index),
           }}
         >
           {option.text}

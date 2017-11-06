@@ -19,43 +19,87 @@ export default Component => (
       })).isRequired,
       multiSelect: PropTypes.bool,
       placeholderText: PropTypes.string,
+      minSearchCharacters: PropTypes.number,
     }
 
     static defaultProps = {
       className: '',
       multiSelect: false,
       placeholderText: 'Choose one',
+      minSearchCharacters: 2,
     }
 
     constructor(props) {
       super();
 
-      this.state = { ...props, selected: props.multiSelect ? [] : { text: props.placeholderText } };
+      this.state = {
+        selected: { text: props.placeholderText, placeholder: true },
+        currentOptions: props.options,
+        searchTerm: '',
+      };
 
       this.search = this.search.bind(this);
       this.onSelect = this.onSelect.bind(this);
+      this.removeSelected = this.removeSelected.bind(this);
     }
 
     onSelect(value) {
-      const thisOption = this.props.options.find(option => option.value === value);
+      const { options } = this.props;
+      const thisSelected = options.find(option => option.value === value);
+
+      let selected = thisSelected;
       if (this.props.multiSelect) {
-        // TODO: implement
-      } else {
-        this.setState({ selected: thisOption })
+        if (Array.isArray(this.state.selected)) {
+          selected = this.state.selected.concat(thisSelected);
+        } else {
+          selected = [thisSelected];
+        }
       }
+
+      this.setState({ selected, currentOptions: options });
     }
 
-    search(e) {
-      const value = e.target.value;
+    removeSelected(index) {
+      const selected = [...this.state.selected];
+      selected.splice(index, 1);
 
-      console.log(this.state);
-      console.log(value);
+      if (selected.length < 1) {
+        return this.setState({ selected: { text: this.props.placeholderText, placeholder: true } });
+      }
+
+      this.setState({ selected });
+    }
+
+    search({ target: { value: searchTerm } }) {
+      const { minSearchCharacters, options } = this.props;
+      const searchTermLower = searchTerm.toLowerCase();
+
+      if (searchTerm.length < minSearchCharacters) {
+        return this.setState({ currentOptions: options });
+      }
+
+      const currentOptions = options.filter(option => option.text.toLowerCase().indexOf(searchTermLower) > -1);
+
+      this.setState({ currentOptions });
     }
 
     render() {
-      const selected = this.props.multiselect ? [] : this.state.selected.text;
+      const { className } = this.props;
+      const selected = Array.isArray(this.state.selected)
+        ? this.state.selected.map(obj => obj.text)
+        : this.state.selected.text;
+
       return (
-        <Component {...{ ...this.state, selected, search: this.search, onSelect: this.onSelect }} />
+        <Component
+          {...{
+            className,
+            selected,
+            search: this.search,
+            onSelect: this.onSelect,
+            options: this.state.currentOptions,
+            removeSelected: this.removeSelected,
+          }}
+        />
       );
     }
   }

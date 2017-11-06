@@ -3,7 +3,7 @@ $border: 1px solid $borderColor;
 $spacingBase: 7px;
 
 .chosen-react {
-  display: flex;
+  // display: flex;
 
   :focus {
     outline: none;
@@ -11,7 +11,8 @@ $spacingBase: 7px;
 }
 .chosen-react__container {
   position: relative;
-  display: flex;
+  // display: flex;
+  width: 100%;
 };
 
 .chosen-react__current {
@@ -20,7 +21,44 @@ $spacingBase: 7px;
   border-radius: 3px;
   border: $border;
   padding: $spacingBase;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: space-between;
 };
+
+.chosen-react__current--multi {
+  @extend .chosen-react__current;
+  padding: 2px;
+}
+
+.chosen-react__current--placeholder {
+  color: #999;
+}
+
+.chosen-react__current__items {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    border: 1px solid black;
+    background: #dedede;
+    margin: 0 10px 0 0;
+    padding: 4px;
+    box-sizing: border-box;
+
+    button {
+      background: transparent;
+      border: none;
+      font-size: inherit;
+      margin: 0 0 0 10px;
+      padding: 0;
+      line-height: inherit;
+      cursor: pointer;
+    }
+  }
+}
 
 .chosen-react__arrow {
   height: 16px;
@@ -62,8 +100,7 @@ $spacingBase: 7px;
     margin: 0;
     cursor: pointer;
 
-    &:hover,
-    &:focus {
+    &.chosen-react__results__active {
       background-color: #3875d7;
       background-image: -webkit-gradient(linear, left top, left bottom, color-stop(20%, #3875d7), color-stop(90%, #2a62bc));
       background-image: linear-gradient(#3875d7 20%, #2a62bc 90%);

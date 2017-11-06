@@ -16,6 +16,13 @@ class App extends React.Component {
       <option key={option.value} value={option.value}>{option.text}</option>
     ));
 
+    const checkBoxOptions = options.map(option => (
+      <div key={option.value}>
+        <input type="checkbox" value={option.value} id={option.value} />
+        <label htmlFor={option.value}>{option.text}</label>
+      </div>
+    ))
+
     return (
       <div className="wrapper">
         <h1 className="heading">Chosen React</h1>
@@ -34,6 +41,21 @@ class App extends React.Component {
           <div>
             <h3>Into This</h3>
             <Chosen {...{ options }} />
+          </div>
+        </div>
+
+        <h2>Multi Select</h2>
+
+        <div className="side-by-side">
+          <div>
+            <h3>Turns This</h3>
+
+            {checkBoxOptions}
+          </div>
+
+          <div>
+            <h3>Into This</h3>
+            <Chosen {...{ options, multiSelect: true }} />
           </div>
         </div>
       </div>
