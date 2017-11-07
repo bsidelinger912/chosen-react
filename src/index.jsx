@@ -100,11 +100,7 @@ class Chosen extends React.Component {
       <option key={option.value} value={option.value}>{option.text}</option>
     ));
 
-    const arrowComponent = dropVisible ? (
-      <DownArrow onClick={this.toggleOpenClosed} />
-    ) : (
-      <UpArrow />
-    );
+    const arrowComponent = dropVisible ? <UpArrow /> : <DownArrow />;
 
     const selectedEl = (typeof selected === 'string')
       ? selected

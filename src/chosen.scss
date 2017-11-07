@@ -1,6 +1,6 @@
 $borderColor: #aaa;
 $border: 1px solid $borderColor;
-$spacingBase: 7px;
+$spacingBase: 5px;
 
 .chosen-react {
   // display: flex;
@@ -79,6 +79,7 @@ $spacingBase: 7px;
   width: 100%;
   box-sizing: border-box;
   background: #fff;
+  z-index: 1000;
 };
 
 .chosen-react__search {
