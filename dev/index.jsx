@@ -50,7 +50,9 @@ class App extends React.Component {
           <div>
             <h3>Turns This</h3>
 
-            {checkBoxOptions}
+            <select multiple>
+              {normalSelectOptions}
+            </select>
           </div>
 
           <div>

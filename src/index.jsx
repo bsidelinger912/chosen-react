@@ -14,9 +14,14 @@ import Results from './Results';
 
 import './chosen.scss';
 
+function stopProp(e) {
+  e.stopPropagation();
+}
+
 class Chosen extends React.Component {
   static propTypes = {
     className: PropTypes.string.isRequired,
+    fieldName: PropTypes.string,
     options: PropTypes.arrayOf(PropTypes.shape({
       text: PropTypes.string.isRequired,
       value: PropTypes.oneOfType([
@@ -33,6 +38,10 @@ class Chosen extends React.Component {
     removeSelected: PropTypes.func.isRequired,
   }
 
+  static defaultProps = {
+    fieldName: '',
+  }
+
   constructor() {
     super();
 
@@ -43,6 +52,14 @@ class Chosen extends React.Component {
     this.removeSelected = this.removeSelected.bind(this);
     this.setActiveIndex = this.setActiveIndex.bind(this);
     this.keyUp = this.keyUp.bind(this);
+  }
+
+  componentDidMount() {
+    document.onclick = () => {
+      console.error('***********');
+      console.log(this);
+      this.setState({ dropVisible: false });
+    };
   }
 
   onSelect(value) {
@@ -93,7 +110,7 @@ class Chosen extends React.Component {
   }
 
   render() {
-    const { className, options, search, selected } = this.props; // eslint-disable-line object-curly-newline
+    const { className, options, search, selected, fieldName } = this.props; // eslint-disable-line object-curly-newline
     const { dropVisible, activeIndex } = this.state;
 
     const normalSelectOptions = options.map(option => (
@@ -118,8 +135,13 @@ class Chosen extends React.Component {
     const chosenClass = (typeof selected === 'string') ? 'chosen-react__current' : 'chosen-react__current--multi';
 
     return (
-      <div className="chosen-react" role="presentation" onKeyUp={this.keyUp}>
-        <select style={{ display: 'none' }}>
+      <div
+        className="chosen-react"
+        role="presentation"
+        onKeyUp={this.keyUp}
+        onClick={stopProp}
+      >
+        <select name={fieldName} id={fieldName} style={{ display: 'none' }}>
           {normalSelectOptions}
         </select>
         <div className={`chosen-react__container ${className}`}>
