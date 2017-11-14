@@ -7,6 +7,9 @@
         "modules": true,
         "classes": true
     },
+    "env": {
+        "browser": true,
+    },
     "rules": {
         // overrides best practices.js
         "curly": [

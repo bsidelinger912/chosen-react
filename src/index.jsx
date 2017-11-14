@@ -14,10 +14,6 @@ import Results from './Results';
 
 import './chosen.scss';
 
-function stopProp(e) {
-  e.stopPropagation();
-}
-
 class Chosen extends React.Component {
   static propTypes = {
     className: PropTypes.string.isRequired,
@@ -32,14 +28,20 @@ class Chosen extends React.Component {
     search: PropTypes.func.isRequired,
     onSelect: PropTypes.func.isRequired,
     selected: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.arrayOf(PropTypes.string),
+      PropTypes.shape({
+        text: PropTypes.string,
+        value: PropTypes.string,
+      }),
+      PropTypes.arrayOf(PropTypes.shape({
+        text: PropTypes.string,
+        value: PropTypes.string,
+      })),
     ]).isRequired,
     removeSelected: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
-    fieldName: '',
+    fieldName: null,
   }
 
   constructor() {
@@ -52,16 +54,19 @@ class Chosen extends React.Component {
     this.removeSelected = this.removeSelected.bind(this);
     this.setActiveIndex = this.setActiveIndex.bind(this);
     this.keyUp = this.keyUp.bind(this);
+    this.setWrapperRef = this.setWrapperRef.bind(this);
+    this.handleClickOutside = this.handleClickOutside.bind(this);
   }
 
   componentDidMount() {
-    document.onclick = () => {
-      console.error('***********');
-      console.log(this);
-      this.setState({ dropVisible: false });
-    };
+    document.addEventListener('mousedown', this.handleClickOutside);
   }
 
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleClickOutside);
+  }
+
+  // TODO: get some of this behavior back in a sec
   onSelect(value) {
     this.setState({ dropVisible: false });
     this.searchInput.value = '';
@@ -69,13 +74,26 @@ class Chosen extends React.Component {
     this.props.onSelect(value);
   }
 
+  setWrapperRef(node) {
+    this.wrapperRef = node;
+  }
+
   // TODO: move to container?
   setActiveIndex(index) {
     this.setState({ activeIndex: index });
   }
 
+  handleClickOutside(event) {
+    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+      this.setState({ dropVisible: false });
+    }
+  }
+
   // TODO: move to container?
   keyUp(e) {
+    // TODO: need to stop the form submit here, which this isn't doing
+    e.stopPropagation();
+
     const { activeIndex } = this.state;
     const { options } = this.props;
 
@@ -113,35 +131,39 @@ class Chosen extends React.Component {
     const { className, options, search, selected, fieldName } = this.props; // eslint-disable-line object-curly-newline
     const { dropVisible, activeIndex } = this.state;
 
+    // When a multi select is empty, it should look like a normal select in that state
+    const renderAsMultiSelect = Array.isArray(selected);
+
     const normalSelectOptions = options.map(option => (
-      <option key={option.value} value={option.value}>{option.text}</option>
+      <option key={option.value} value={option.value}>
+        {option.text}
+      </option>
     ));
 
     const arrowComponent = dropVisible ? <UpArrow /> : <DownArrow />;
 
-    const selectedEl = (typeof selected === 'string')
-      ? selected
-      : (
-        <ul className="chosen-react__current__items">
-          {selected.map((text, index) => (
-            <li key={text}>
-              {text}
-              <button value={index} onClick={this.removeSelected}>&times;</button>
-            </li>
-          ))}
-        </ul>
-      );
+    const selectedEl = renderAsMultiSelect ? (
+      <ul className="chosen-react__current__items">
+        {selected.map(({ text }, index) => (
+          <li key={text}>
+            {text}
+            <button value={index} onClick={this.removeSelected}>&times;</button>
+          </li>
+        ))}
+      </ul>
+    ) : selected.text;
 
-    const chosenClass = (typeof selected === 'string') ? 'chosen-react__current' : 'chosen-react__current--multi';
+    const chosenClass = renderAsMultiSelect ? 'chosen-react__current--multi' : 'chosen-react__current';
+    const value = renderAsMultiSelect ? selected.map(option => option.value) : selected.value;
 
     return (
       <div
         className="chosen-react"
         role="presentation"
         onKeyUp={this.keyUp}
-        onClick={stopProp}
+        ref={this.setWrapperRef}
       >
-        <select name={fieldName} id={fieldName} style={{ display: 'none' }}>
+        <select value={value} name={fieldName} id={fieldName} style={{ display: 'none' }}>
           {normalSelectOptions}
         </select>
         <div className={`chosen-react__container ${className}`}>
@@ -159,7 +181,7 @@ class Chosen extends React.Component {
           </a>
           <div className="chosen-react__drop" style={{ display: dropVisible ? 'block' : 'none' }}>
             <div className="chosen-react__search">
-              <input type="text" onKeyUp={search} ref={(input) => { this.searchInput = input; }} />
+              <input type="text" onKeyPress={search} ref={(input) => { this.searchInput = input; }} />
             </div>
 
             <Results

@@ -70,7 +70,11 @@ export default Component => (
       this.setState({ selected });
     }
 
-    search({ target: { value: searchTerm } }) {
+    search(e) {
+      // TODO: need to stop the form submit here, which this isn't doing
+      e.stopPropagation();
+
+      const { target: { value: searchTerm } } = e;
       const { minSearchCharacters, options } = this.props;
       const searchTermLower = searchTerm.toLowerCase();
 
@@ -84,16 +88,11 @@ export default Component => (
     }
 
     render() {
-      const { className } = this.props;
-      const selected = Array.isArray(this.state.selected)
-        ? this.state.selected.map(obj => obj.text)
-        : this.state.selected.text;
-
       return (
         <Component
           {...{
-            className,
-            selected,
+            ...this.props,
+            selected: this.state.selected,
             search: this.search,
             onSelect: this.onSelect,
             options: this.state.currentOptions,
